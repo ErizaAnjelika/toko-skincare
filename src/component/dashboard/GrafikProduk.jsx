@@ -8,6 +8,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useEffect, useState } from "react";
+import { fetchChartProduct } from "../../service/api";
 
 // Registrasi komponen Chart.js yang diperlukan
 ChartJS.register(
@@ -19,15 +21,35 @@ ChartJS.register(
   Legend
 );
 export const GrafikProduk = () => {
+  const [chartData, setChartData] = useState(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await fetchChartProduct();
+        if (data && data.length > 0) {
+          const labels = data.map((item) => item.nama_produk);
+
+          const values = data.map((item) => item.jumlah_terjual);
+
+          setChartData({ labels, values });
+        }
+        console.log(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getData();
+  }, []);
   const data = {
-    labels: ["Product A", "Product B", "Product C", "Product D", "Product E"],
+    labels: chartData?.labels || [],
     datasets: [
       {
         label: "Produk",
-        data: [120, 150, 180, 70, 90],
-        backgroundColor: "rgba(54, 162, 235, 0.6)", // Warna batang
-        borderColor: "rgba(54, 162, 235, 1)", // Warna tepi batang
-        borderWidth: 1, // Lebar tepi batang
+        data: chartData?.values || [],
+        backgroundColor: "rgba(54, 162, 235, 0.6)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 1,
       },
     ],
   };

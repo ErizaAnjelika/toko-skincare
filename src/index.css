@@ -9,6 +9,43 @@
   font-weight: 400;
   background-color: #f7f7f7;
 }
+
+@media print {
+  /* Menyembunyikan elemen yang tidak diperlukan untuk dicetak */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Menampilkan hanya bagian barcode saat mencetak */
+  .print-barcode {
+    visibility: visible;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 kolom */
+    grid-template-rows: repeat(6, 1fr); /* 6 baris */
+    gap: 10px;
+  }
+
+  /* Mengatur tampilan barcode */
+  .barcode-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+  }
+}
+
+/* Pastikan semua cell dalam tabel membungkus teks */
+.rdt_TableCell {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: visible !important;
+}
+
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

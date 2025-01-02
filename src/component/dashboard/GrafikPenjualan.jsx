@@ -9,6 +9,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useEffect, useState } from "react";
+import { fetchChart } from "../../service/api";
 ChartJS.register(
   LineElement,
   CategoryScale,
@@ -19,12 +21,40 @@ ChartJS.register(
   Legend
 );
 export const GrafikPenjualan = () => {
+  const [chartData, setChartData] = useState(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const data = await fetchChart();
+        if (data && data.length > 0) {
+          // Proses data menjadi format { labels: [...], values: [...] }
+          const labels = data.map((item) =>
+            new Intl.DateTimeFormat("id-ID", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }).format(new Date(item.tanggal))
+          );
+
+          const values = data.map((item) => item.total_penjualan);
+
+          setChartData({ labels, values });
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    getData();
+  }, []);
+
+  // Data untuk grafik
   const data = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    labels: chartData?.labels || [],
     datasets: [
       {
         label: "Penjualan",
-        data: [65, 59, 80, 81, 56, 55, 40],
+        data: chartData?.values || [],
         fill: false,
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
@@ -49,13 +79,13 @@ export const GrafikPenjualan = () => {
       x: {
         title: {
           display: true,
-          text: "Hari",
+          text: "Tanggal",
         },
       },
       y: {
         title: {
           display: true,
-          text: "Value",
+          text: "Jumlah Penjualan",
         },
         beginAtZero: true, // Memulai sumbu Y dari 0
       },
