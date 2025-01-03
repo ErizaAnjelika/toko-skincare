@@ -8,7 +8,7 @@ import { UpdateProductPage } from "./pages/ProductPage/UpdateProductPage";
 import { CategoriesPage } from "./pages/CategoriesPage";
 import { UserPage } from "./pages/UserPage";
 import { TransactionPage } from "./pages/TransactionPage";
-import { AddTransactionPage } from "./pages/TransactionPage/AddTransaction";
+import { AddTransactionPage } from "./pages/TransactionPage/AddTransactionPage";
 
 const router = createBrowserRouter([
   {

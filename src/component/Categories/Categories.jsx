@@ -183,7 +183,7 @@ export const Categories = () => {
     <div className="p-4 mt-14">
       <h1 className="text-2xl font-semibold">Kategori</h1>
       <div className="container mx-auto mt-6 p-4 bg-white rounded-md shadow-md">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-wrap justify-between items-center mb-6">
           <button
             onClick={() => setTambahModalOpen(true)}
             className="bg-[#2e7d32] text-white py-2 px-4 rounded hover:bg-[#147218] shadow-sm"
