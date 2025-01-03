@@ -1,10 +1,12 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
   build: {
-    outDir: 'dist', // Pastikan ini default atau sesuai dengan pengaturan Anda
+    outDir: "dist", // Folder output untuk file build
+  },
+  server: {
+    host: true,
   },
 });
