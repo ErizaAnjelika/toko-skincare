@@ -28,7 +28,7 @@ export const Product = () => {
   }, []);
 
   // Filter data berdasarkan pencarian dan kategori
-  const filteredData = dataProduct.filter((item) => {
+  const filteredData = dataProduct?.filter((item) => {
     const matchesSearch = item.name
       .toLowerCase()
       .includes(filterText.toLowerCase());
@@ -306,7 +306,7 @@ export const Product = () => {
   };
 
   const categories = [
-    ...new Set(dataProduct.map((item) => item.category?.name)),
+    ...new Set(dataProduct?.map((item) => item.category?.name)),
   ];
 
   return (

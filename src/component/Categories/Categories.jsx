@@ -32,7 +32,7 @@ export const Categories = () => {
   }, []);
 
   // Filter data berdasarkan pencarian dan kategori
-  const filteredData = dataCategories.filter((item) => {
+  const filteredData = dataCategories?.filter((item) => {
     const matchesSearch = item.name
       .toLowerCase()
       .includes(filterText.toLowerCase());
