@@ -6,9 +6,10 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 
 export const AddTransaction = () => {
   const [items, setItems] = useState([]);
-  const [barcode, setBarcode] = useState(""); // Untuk input manual
+  const [barcode, setBarcode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [total, setTotal] = useState(0);
+  const [printData, setPrintData] = useState(null);
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(
@@ -31,10 +32,12 @@ export const AddTransaction = () => {
       if (response) {
         const product = await response;
 
-        const existingItem = items.find((item) => item.barcode === barcode);
-        if (existingItem) {
-          setItems((prevItems) =>
-            prevItems.map((item) =>
+        setItems((prevItems) => {
+          const existingItem = prevItems.find(
+            (item) => item.barcode === barcode
+          );
+          if (existingItem) {
+            return prevItems.map((item) =>
               item.barcode === barcode
                 ? {
                     ...item,
@@ -42,10 +45,9 @@ export const AddTransaction = () => {
                     total: (item.quantity + 1) * product.harga_jual,
                   }
                 : item
-            )
-          );
-        } else {
-          setItems((prevItems) => [
+            );
+          }
+          return [
             ...prevItems,
             {
               barcode,
@@ -54,8 +56,9 @@ export const AddTransaction = () => {
               quantity: 1,
               total: product.harga_jual,
             },
-          ]);
-        }
+          ];
+        });
+
         setTotal((prevTotal) => prevTotal + product.harga_jual);
       } else {
         Swal.fire("Error", "Produk tidak ditemukan!", "error");
@@ -85,14 +88,25 @@ export const AddTransaction = () => {
           : item
       )
     );
-    const newTotal = items.reduce(
-      (sum, item) =>
-        item.barcode === barcode
-          ? sum + newQuantity * item.price
-          : sum + item.total,
-      0
+    setTotal(
+      items.reduce(
+        (sum, item) =>
+          item.barcode === barcode
+            ? sum + newQuantity * item.price
+            : sum + item.total,
+        0
+      )
     );
-    setTotal(newTotal);
+  };
+
+  const handleCancelItem = (barcode) => {
+    setItems((prevItems) =>
+      prevItems.filter((item) => item.barcode !== barcode)
+    );
+    setTotal((prevTotal) => {
+      const canceledItem = items.find((item) => item.barcode === barcode);
+      return prevTotal - (canceledItem?.total || 0);
+    });
   };
 
   const handleTransactionSubmit = async () => {
@@ -111,6 +125,7 @@ export const AddTransaction = () => {
       const response = await addTransaction(payload);
       if (response) {
         Swal.fire("Berhasil!", "Transaksi berhasil ditambahkan.", "success");
+        setPrintData({ items, total, paymentMethod });
         setItems([]);
         setTotal(0);
         setPaymentMethod("cash");
@@ -161,6 +176,7 @@ export const AddTransaction = () => {
             <th className="px-4 py-2 border">Harga</th>
             <th className="px-4 py-2 border">Qty</th>
             <th className="px-4 py-2 border">Total</th>
+            <th className="px-4 py-2 border">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -183,6 +199,14 @@ export const AddTransaction = () => {
               </td>
               <td className="px-4 py-2 border">
                 Rp {item.total.toLocaleString("id-ID")}
+              </td>
+              <td className="px-4 py-2 border text-center">
+                <button
+                  onClick={() => handleCancelItem(item.barcode)}
+                  className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
+                >
+                  Cancel
+                </button>
               </td>
             </tr>
           ))}
@@ -210,6 +234,52 @@ export const AddTransaction = () => {
       >
         Submit Transaksi
       </button>
+
+      {/* Print Bill */}
+      {printData && (
+        <div className="mt-4 p-4 border rounded bg-gray-100">
+          <h3 className="text-lg font-bold mb-2 text-center">
+            Struk Transaksi
+          </h3>
+          <p className="text-sm text-center">Toko Skincare</p>
+          <p className="text-sm text-center">Jl. Contoh No.123, Kota</p>
+          <hr className="my-2" />
+          <p className="text-sm">
+            <strong>Tanggal:</strong> {new Date().toLocaleString()}
+          </p>
+          <p className="text-sm">
+            <strong>Kasir:</strong> {userInfo.data.nama_kasir}
+          </p>
+          <hr className="my-2" />
+          <table className="w-full text-sm">
+            <thead>
+              <tr>
+                <th className="text-left border-b pb-2">Nama Produk</th>
+                <th className="text-left border-b pb-2">Qty</th>
+                <th className="text-right border-b pb-2">Harga</th>
+              </tr>
+            </thead>
+            <tbody>
+              {printData.items.map((item, index) => (
+                <tr key={index}>
+                  <td className="py-1">{item.name}</td>
+                  <td className="py-1">{item.quantity}</td>
+                  <td className="py-1 text-right">
+                    Rp {item.price.toLocaleString("id-ID")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <hr className="my-2" />
+          <p className="text-right text-sm font-bold">
+            Total: Rp {printData.total.toLocaleString("id-ID")}
+          </p>
+          <p className="text-xs text-center mt-2">
+            Terima kasih telah berbelanja di Toko Skincare!
+          </p>
+        </div>
+      )}
     </div>
   );
 };
